@@ -58,106 +58,106 @@ public class L1541MinInsertionsToBalanceParenthesesString {
         Assertions.assertEquals(minInsertions, minInsertionsToBalanceParentheses.minInsertions(str));
     }
 
-    interface IMinInsertionsToBalanceParentheses {
-        int minInsertions(String s);
-    }
+}
 
-    /**
-     * 解法一：贪心算法求解
-     *
-     * 时间复杂度：O(n)，其中 n 是字符串的长度。遍历字符串一次。
-     * 空间复杂度：O(1)。只需要维护常量的额外空间。
-     */
-    class MinInsertionsToBalanceParenthesesByGreedy implements IMinInsertionsToBalanceParentheses {
+interface IMinInsertionsToBalanceParentheses {
+    int minInsertions(String s);
+}
 
-        @Override
-        public int minInsertions(String s) {
-            int insertions = 0;
-            int leftCount = 0;
-            int length = s.length();
-            int index = 0;
-            while (index < length) {
-                char c = s.charAt(index);
-                if (c == '(') {
-                    leftCount++;
-                    index++;
+/**
+ * 解法一：贪心算法求解
+ *
+ * 时间复杂度：O(n)，其中 n 是字符串的长度。遍历字符串一次。
+ * 空间复杂度：O(1)。只需要维护常量的额外空间。
+ */
+class MinInsertionsToBalanceParenthesesByGreedy implements IMinInsertionsToBalanceParentheses {
+
+    @Override
+    public int minInsertions(String s) {
+        int insertions = 0;
+        int leftCount = 0;
+        int length = s.length();
+        int index = 0;
+        while (index < length) {
+            char c = s.charAt(index);
+            if (c == '(') {
+                leftCount++;
+                index++;
+            } else {
+                if (leftCount > 0) {
+                    leftCount--;
                 } else {
-                    if (leftCount > 0) {
-                        leftCount--;
-                    } else {
-                        insertions++;
-                    }
-                    if (index < length - 1 && s.charAt(index + 1) == ')') {
-                        index += 2;
-                    } else {
-                        insertions++;
-                        index++;
-                    }
+                    insertions++;
+                }
+                if (index < length - 1 && s.charAt(index + 1) == ')') {
+                    index += 2;
+                } else {
+                    insertions++;
+                    index++;
                 }
             }
-            insertions += leftCount * 2;
-            return insertions;
         }
+        insertions += leftCount * 2;
+        return insertions;
     }
+}
 
-    class MinInsertionsToBalanceParenthesesByTwoParam implements IMinInsertionsToBalanceParentheses {
+class MinInsertionsToBalanceParenthesesByTwoParam implements IMinInsertionsToBalanceParentheses {
 
-        @Override
-        public int minInsertions(String s) {
-            int res = 0;
-            int need = 0;
-            for (int i = 0; i < s.length(); i++) {
-                char c = s.charAt(i);
-                if (c == '(') {
-                    need += 2;
-                    if (need % 2 == 1) {  //右括号数量只能为偶数，但只能添（右括号少了）
-                        res++;  //插入一个右括号
-                        need--; //对右括号的需求-1
-                    }
-                }else {
-                    need--;
-                    //need不可能小于-1，因为此处-1后若走上面必有+2
-                    if (need == -1) {  //右括号多了
-                        res++;  //插入一个左括号
-                        need = 1;
-                    }
+    @Override
+    public int minInsertions(String s) {
+        int res = 0;
+        int need = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '(') {
+                need += 2;
+                if (need % 2 == 1) {  //右括号数量只能为偶数，但只能添（右括号少了）
+                    res++;  //插入一个右括号
+                    need--; //对右括号的需求-1
+                }
+            }else {
+                need--;
+                //need不可能小于-1，因为此处-1后若走上面必有+2
+                if (need == -1) {  //右括号多了
+                    res++;  //插入一个左括号
+                    need = 1;
                 }
             }
-            return res + need;
         }
+        return res + need;
     }
+}
 
-    /**
-     * 左右括号匹配
-     */
-    class MinInsertionsToBalanceParenthesesByLeftRightMatch implements IMinInsertionsToBalanceParentheses {
+/**
+ * 左右括号匹配
+ */
+class MinInsertionsToBalanceParenthesesByLeftRightMatch implements IMinInsertionsToBalanceParentheses {
 
-        @Override
-        public int minInsertions(String s) {
-            int ans = 0, left = 0, n = s.length();
-            char[] arr = s.toCharArray();
-            for (int i = 0; i < n; ++i) {
-                if (arr[i] == '(') {
-                    ++left; // 左括号次数
+    @Override
+    public int minInsertions(String s) {
+        int ans = 0, left = 0, n = s.length();
+        char[] arr = s.toCharArray();
+        for (int i = 0; i < n; ++i) {
+            if (arr[i] == '(') {
+                ++left; // 左括号次数
+            }
+            else {
+                if (i+1 < n && arr[i+1] == ')'){
+                    ++i; // 找第二个右括号
+                } else {
+                    ++ans; // 缺少第二个右括号就添加一个
                 }
-                else {
-                    if (i+1 < n && arr[i+1] == ')'){
-                        ++i; // 找第二个右括号
-                    } else {
-                        ++ans; // 缺少第二个右括号就添加一个
-                    }
 
-                    if (left > 0){
-                        --left;   // 两个右括号匹配一个左括号
-                    } else {
-                        ++ans; // 缺少左括号就添加一个
-                    }
+                if (left > 0){
+                    --left;   // 两个右括号匹配一个左括号
+                } else {
+                    ++ans; // 缺少左括号就添加一个
                 }
             }
-            ans += left * 2;  // 多出的左括号都匹配两个右括号
-            return ans;
         }
-
+        ans += left * 2;  // 多出的左括号都匹配两个右括号
+        return ans;
     }
 
 }
